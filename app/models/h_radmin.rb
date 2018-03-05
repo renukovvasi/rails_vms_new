@@ -1,0 +1,2 @@
+class HRadmin < ApplicationRecord
+end

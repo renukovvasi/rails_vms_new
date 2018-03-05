@@ -1,0 +1,3 @@
+class Hrm < ApplicationRecord
+    
+end

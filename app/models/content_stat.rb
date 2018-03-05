@@ -1,0 +1,2 @@
+class ContentStat < ApplicationRecord
+end

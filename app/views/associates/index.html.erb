@@ -1,0 +1,109 @@
+  <div class = "container2">
+    <p style="text-align: center; font-size: 20px;">Timesheet Extraction</p> <br>
+    <head>
+		  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+			  <script type="text/javascript">
+			  <script language="javascript" type="text/javascript">
+			      var sum = 0;
+            $('tr').find('.combat').each(function () {
+              var combat = $(this).text();
+              if (!isNaN(combat) && combat.length !== 0) {
+               sum += parseFloat(combat);
+              }
+           });
+
+         $('.rowtotal',this).html(sum);
+	  	</script>
+	  </head>
+	  <table>
+	    <tr>
+	      <div class ="table1">
+	      <%= form_tag search_associates_path, method: 'get', format: "csv" do |f| %>
+	        <table style = "width: 100%">
+	          <tr>
+              <td>Associate Id</td><td><%= text_field_tag :associate_id, params[:associate_id] %></td>
+              <td>Project Id</td><td><%= text_field_tag :project_id, params[:project_id] %></td>
+              <td>Payroll Center</td><td><%= text_field_tag :payroll_center, params[:payroll_center] %></td>
+              <td>Business Unit</td><td><%= text_field_tag :business_unit, params[:business_unit] %></td>
+            </tr>
+            <tr>
+              <td>Start Date</td><td><%= date_field_tag :start_date, params[:start_date]%></td>
+              <td>End date</td><td><%= date_field_tag :end_date, params[:end_date]%></td>
+            </tr>
+            <tr>
+              <td></td><td></td><td></td><td><%= submit_tag "Reset"%></td>
+              <td><%= submit_tag "Search"%></td>
+            </tr>
+          </table>
+      </tr>
+        <% end %>
+        </div>
+      <tr>
+      <% if @associates.present? %>
+        <%= form_tag export_associates_path(format: :csv), method: "get" do |f|%>
+          <table class = "table2" role="grid">
+            <tr>
+              <th>Select <input type="checkbox"></th>
+              <th>Associate Name</th>
+              <th>Associate Id</th>
+              <th>Business Unit</th>
+              <th>Project Id</th>
+              <th>Assignment Id</th>
+              <th>Work Group</th>
+              <th>Timesheet status</th>
+              <th>Mon<br><%= @date.at_beginning_of_week.strftime("%d/%m") %></th>
+              <th>Tues<br><%= (@date.at_beginning_of_week+1.day).strftime("%d/%m") %></th>
+              <th>Wed<br><%= (@date.at_beginning_of_week+2.day).strftime("%d/%m") %></th>
+              <th>Thur<br><%= (@date.at_beginning_of_week+3.day).strftime("%d/%m") %></th>
+              <th>Fri<br><%= (@date.at_beginning_of_week+4.day).strftime("%d/%m") %></th>
+              <th>Sat<br><%= (@date.at_beginning_of_week+5.day).strftime("%d/%m") %></th>
+              <th>Sun<br><%= (@date.at_beginning_of_week+6.day).strftime("%d/%m") %></th>
+              <th>Total hours</th>
+            </tr>
+          <% @associates.each do |i| %>
+            <tr>
+              <td><%= check_box_tag "user_ids[]", i.associate_id %></td>
+              <td><%= i.associate_name %></td>
+              <td><%= i.associate_id %></td>
+              <td><%= i.business_unit %></td>
+              <td><%= i.project_id%></td>
+              <td><%= i.assignment_id %></td>
+              <td><%= i.work_group %></td>
+              <td><%= i.status %></td>
+              <% total = 0 %>
+              <% h = Hour.where(associate_id: i.associate_id, date: (@date.beginning_of_week..(@date.beginning_of_week)+7 )) %>
+              <% if h.present? && h.count == 7 %>
+                <% h.each do |f| %>
+                  <% if f.hours != nil %>
+                    <td><%= f.hours %></td>
+                    <% total = total + f.hours %>
+                  <% else %>
+                    <td> 0 </td>
+                  <% end %>
+                <%end%>
+              <%else%>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+              <%end%>
+              <td><%=  total %></td>
+            </tr>
+          <% end %>
+          </table>
+          <table class = "table3">
+            <tr>
+              <%= submit_tag("Export") %>
+            </tr>
+          </table>
+          <% end %>
+      <% end %>
+      </tr>  
+    </table>
+    <% if flash[:success] %>
+      <div class=""><%= flash[:success] %></div>
+    <% end %>
+</div>

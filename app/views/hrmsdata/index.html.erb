@@ -1,0 +1,81 @@
+<div class = container2 >
+  <head>
+		  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		  <script type = "text/javascript" src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+			<script>
+        function myFunction() {
+          document.getElementById("hours").style.color = "white";
+        }
+</script>
+	</head>
+  <table>
+    <tr>
+      <td></td>
+      <td></td>
+      <%= form_tag import_hrmsdata_path, multipart: true do %>
+        <div class="col-sm-offset-2 col-sm-2">
+          <td> <%= file_field_tag :file %> </td>
+          <td><%= submit_tag "Import" %> </td>
+        </div>
+      <% end %>
+    </tr>
+    <tr>
+      <% if @list.present? %>
+        <table class = table2>
+          <tr>
+            <th>Select <input type="checkbox"></th>
+            <th>Associate Name</th>
+            <th>Associate Id</th>
+            <th>Assignment Id</th>
+            <th>Project Id</th>
+            <th>Mon</th>
+            <th>Tues</th>
+            <th>Wed</th>
+            <th>Thur</th>
+            <th>Fri</th>
+            <th>Sat</th>
+            <th>Sun</th>
+            <th>Total hours</th>
+          </tr>
+          <% @list.each do |i| %>
+            <tr>
+              <td><%= check_box_tag "user_ids[]", i.associate_id, :class => 'input-large', :value => "flase", :onchange => "doalert(this)" %></td>
+              <td><%= i.associate_name %> </td>
+              <td><%= i.associate_id %></td>
+              <td><%= i.assignment_id %></td>
+              <td><%= i.project_id %></td>
+              <% total = 0 %>
+              <% h = Hrhour.where(associate_id: i.associate_id, date: (@date.beginning_of_week..(@date.beginning_of_week)+7 )) %>
+              <% if h.present? && h.count == 7 %>
+                <% h.each do |f| %>
+                  <% if f.hours != nil %>
+                    <td><%= f.hours %></td>
+                    <% total = total + f.hours %>
+                  <% else %>
+                    <td> 0 </td>
+                  <% end %>
+                <%end%>
+              <%else%>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+              <%end%>
+              <td><%=  total %></td>
+            </tr>
+            <% end %>
+        </tr>
+      </table>
+      <% end %>  
+    </tr>
+      <tr>
+        <div class="col-sm-offset-2 col-sm-2">
+          <td><%= button_to "Save"%> </td>
+          <td><%= button_to "Cancel" %></td>
+        </div>
+      </tr>
+  </table>
+</div>
