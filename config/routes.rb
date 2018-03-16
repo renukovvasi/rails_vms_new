@@ -10,6 +10,7 @@ Rails.application.routes.draw do
       get 'search' => 'associates#search'
       get 'export' => 'associates#export'
       get 'home' => 'associates#home'
+      get 'reset' => 'associates#reset'
     end
   end
   resources :hrmsdata do
@@ -17,6 +18,7 @@ Rails.application.routes.draw do
       post 'import' => 'hrmsdata#import'
       get 'search' => 'hrmsdata#search'
       get 'home' => 'hrmsdata#home'
+      put 'update' => 'hrmsdata#update'
     end
   end
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

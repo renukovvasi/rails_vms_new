@@ -1,81 +1,160 @@
 <div class = container2 >
   <head>
-		  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-		  <script type = "text/javascript" src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-			<script>
-        function myFunction() {
-          document.getElementById("hours").style.color = "white";
-        }
-</script>
+		<script type = "text/javascript">
+      $(document).ready(function() {
+          $(".ed_hrs").change(function(){
+            var hours = $(this).parent().parent().find(":text");
+            l = Array();
+            var sum = 0;
+            $.each(hours, function(i,k){
+              var hr = hours.eq(i).val();
+              sum = sum + parseInt(hr);
+            });
+            $(this).parent().parent().find("td:last").text(sum);
+          });
+          $("#check_all").change(function() {
+            if (this.checked) {
+              $(".user_check").each(function() {
+                this.checked=true;
+              });
+            } else {
+              $(".user_check").each(function() {
+                this.checked=false;
+              });
+            }
+          });
+
+          $(".user_check").click(function () {
+            if ($(this).is(":checked")) {
+              var isAllChecked = 0;
+
+              $(".user_check").each(function() {
+                if (!this.checked)
+                    isAllChecked = 1;
+              });
+
+              if (isAllChecked == 0) {
+                $("#check_all").prop("checked", true);
+              }
+            } else {
+              $("#check_all").prop("checked", false);
+              }
+              
+            });
+            
+            $(".my_form").submit(function(){
+              var data = Array();
+              var hours = Array();
+              var list = Array();
+              var date = $(".table4 #td_date").text();
+              $(".table4 tr").filter(':has(:checkbox:checked)').each(function(i, v){
+                  data[i] = Array();
+                  var hours = $(this).find(":text");
+                  $.each(hours, function(i,l){
+                    var hr = hours.eq(i).val();
+                    list.push(hr);
+                  });
+                  $(this).children('td').each(function(ii, vv){
+                    data[i][ii] = $(this).text();
+                  }); 
+                  data.push(list);
+              });
+              $.ajax({
+                type: "PUT",
+                url: $(this).attr('action'), //sumbits it to the given url of the form
+                data: {list_data: data, date: date},
+                dataType: "JSON" // you want a difference between normal and ajax-calls, and json is standard
+                }).success(function(){
+                  $(".notice").text("Records Saved Successfully");
+              });
+                return true; 
+            });
+      });
+    </script>
 	</head>
-  <table>
-    <tr>
-      <td></td>
-      <td></td>
-      <%= form_tag import_hrmsdata_path, multipart: true do %>
-        <div class="col-sm-offset-2 col-sm-2">
-          <td> <%= file_field_tag :file %> </td>
-          <td><%= submit_tag "Import" %> </td>
+	<% if flash[:notice] %>
+      <div class="notice"><%= flash[:notice] %></div>
+  <% end %>
+	<p style="text-align: center; font-size: 20px;"> Time Data Import</p>
+  <div>
+    <table>
+      <tr>
+        <td></td>
+        <td></td>
+        <%= form_tag import_hrmsdata_path, multipart: true do %>
+          <div class="col-sm-4">
+            <td> <%= file_field_tag :file %> </td>
+            <td><%= submit_tag "Upload" %> </td>
+          </div>
+        <% end %>
+      </tr>
+      <% if @list.present? %>
+        <div class = "import_data">
+        <%= form_tag hrmsdata_path,  method: "put", class: "my_form", remote: true do |p|%>
+          <tr>
+            <table class = table4>
+              <tr>
+                <th>Select <input type="checkbox", id = "check_all"></th>
+                <th>Associate Name</th>
+                <th>Associate Id</th>
+                <th>Assignment Id</th>
+                <th>Project Id</th>
+                <th id = "td_date">Mon<br><%= @date.at_beginning_of_week.strftime("%d/%m/%Y")%></th>
+                <th>Tues<br><%= (@date.at_beginning_of_week+1.day).strftime("%d/%m/%Y")%></th>
+                <th>Wed<br><%= (@date.at_beginning_of_week+2.day).strftime("%d/%m/%Y")%></th>
+                <th>Thur<br><%= (@date.at_beginning_of_week+3.day).strftime("%d/%m/%Y")%></th>
+                <th>Fri<br><%= (@date.at_beginning_of_week+4.day).strftime("%d/%m/%Y")%></th>
+                <th>Sat<br><%= (@date.at_beginning_of_week+5.day).strftime("%d/%m/%Y")%></th>
+                <th>Sun<br><%= (@date.at_beginning_of_week+6.day).strftime("%d/%m/%Y")%></th>
+                <th>Total hours</th>
+              </tr>
+              <% @list.each do |i| %>
+                <tr>
+                  <td ><%= check_box_tag "user_ids[]", i.associate_id,checked = false, class: "user_check" %></td>
+                  <td><%= i.associate_name %> </td>
+                  <td><%= i.associate_id %></td>
+                  <td><%= i.assignment_id %></td>
+                  <td><%= i.project_id %></td>
+                  <% total = 0 %>
+                  <% h = Hrhour.where(associate_id: i.associate_id, date: (@date..@date+7.day )) %>
+                  <% if h.present? %>
+                    <div class = "edit_hrs" >
+                      <% h.each do |f| %>
+                        <% if f.hours != nil %>
+                          <td><%= text_field_tag 'hours[]',f.hours , class: "ed_hrs", name: "hours"%></td>
+                          <% total = total + f.hours %>
+                        <% else %>
+                          <td> <%= text_field_tag 'hours[]',f.hours , class: "ed_hrs", name: "hours"%>0</td>
+                        <% end %>
+                      <%end%>
+                    <%else%>
+                      <td><%= text_field_tag 'hours',0 , class: "ed_hrs"%>  </td>
+                      <td><%= text_field_tag 'hours',0 , class: "ed_hrs"%>  </td>
+                      <td><%= text_field_tag 'hours',0 , class: "ed_hrs"%>  </td>
+                      <td><%= text_field_tag 'hours',0 , class: "ed_hrs"%>  </td>
+                      <td><%= text_field_tag 'hours',0 , class: "ed_hrs"%>  </td>
+                      <td><%= text_field_tag 'hours',0 , class: "ed_hrs"%>  </td>
+                      <td><%= text_field_tag 'hours',0 , class: "ed_hrs"%>  </td>
+                    <%end%>
+                  </div>
+                  <td id = "total_hrs"><%=  total %></td>
+                </tr>
+              <% end %>
+              </tr>
+              <tr>
+                <td id= "last"></td>
+                <td id= "last"></td>
+                <td id= "last"></td>
+                <td id= "last"></td><td id= "last"></td>
+                <td id= "last"><%= submit_tag "Save"%> </td>
+                <td id= "last"><%= submit_tag "Cancel" %></td>
+              </tr>
+            </table>
+          </tr>
+          <%end%>
         </div>
       <% end %>
-    </tr>
-    <tr>
-      <% if @list.present? %>
-        <table class = table2>
-          <tr>
-            <th>Select <input type="checkbox"></th>
-            <th>Associate Name</th>
-            <th>Associate Id</th>
-            <th>Assignment Id</th>
-            <th>Project Id</th>
-            <th>Mon</th>
-            <th>Tues</th>
-            <th>Wed</th>
-            <th>Thur</th>
-            <th>Fri</th>
-            <th>Sat</th>
-            <th>Sun</th>
-            <th>Total hours</th>
-          </tr>
-          <% @list.each do |i| %>
-            <tr>
-              <td><%= check_box_tag "user_ids[]", i.associate_id, :class => 'input-large', :value => "flase", :onchange => "doalert(this)" %></td>
-              <td><%= i.associate_name %> </td>
-              <td><%= i.associate_id %></td>
-              <td><%= i.assignment_id %></td>
-              <td><%= i.project_id %></td>
-              <% total = 0 %>
-              <% h = Hrhour.where(associate_id: i.associate_id, date: (@date.beginning_of_week..(@date.beginning_of_week)+7 )) %>
-              <% if h.present? && h.count == 7 %>
-                <% h.each do |f| %>
-                  <% if f.hours != nil %>
-                    <td><%= f.hours %></td>
-                    <% total = total + f.hours %>
-                  <% else %>
-                    <td> 0 </td>
-                  <% end %>
-                <%end%>
-              <%else%>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-              <%end%>
-              <td><%=  total %></td>
-            </tr>
-            <% end %>
-        </tr>
-      </table>
-      <% end %>  
-    </tr>
-      <tr>
-        <div class="col-sm-offset-2 col-sm-2">
-          <td><%= button_to "Save"%> </td>
-          <td><%= button_to "Cancel" %></td>
-        </div>
       </tr>
-  </table>
+    </table>
+  </div>
 </div>

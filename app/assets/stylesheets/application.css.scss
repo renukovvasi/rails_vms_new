@@ -9,10 +9,11 @@
  * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
  * files in this directory. Styles in this file should be added after the last require_* statement.
  * It is generally better to create a new file per style scope.
- *
+ *= require material_icons
  *= require_tree .
  *= require_self
  */
+ 
 @import "bootstrap-sprockets";
 @import "bootstrap";
 header {
@@ -40,21 +41,25 @@ body {
   background-color: #0f6f8cbf;
   text-align: center;
   border-radius: 35px;
+  scroll: true;
 }
 footer {
-	position: absolute;
+	position: fixed;
 	right: 0;
 	bottom: 0;
 	left: 0;
 	padding: 1rem;
-	height: 10%;
+	height: 8%;
 	color: #fff;
 	background-color:#145973;
 	text-align: center;
 	background-size: cover;
 }
+footer small{
+    text-align: left;
+}
 .container2{
- margin-top: 100px; 
+ margin-top: 80px; 
  text-align: center;
  text-align: left;
 }
@@ -64,9 +69,14 @@ footer {
 }
 .table1 tr,td{
   font-weight: bold;
-  text-align: center;
+  text-align: left;
   vertical-align: middle;
+   padding: 0.2rem;
 }
+.table1 td{
+  width: 20%;
+}
+
 .table2 td,th {
   border: 1px solid black;
   padding: 0.5rem;
@@ -80,42 +90,101 @@ footer {
 .table2 tr:first-child {
     background-color: #7896a0;
 }
+.table2 tbody > tr:last-child > td{
+  border-bottom: 0;
+  background-color: transparent;
+}
+#last{
+  border: 0;
+}
 .table2 {
   position: absolute;
-  top: 45%;
+  top: 40%;
   left: 10%;
   width: 80%;
+  text-align: center;
 }
+
 .table3 {
   bottom: 30%;
 }
 #action_item {
-    position: absolute;
-    top: 38%;
-    left: 15%;
-   background-color: #96d8e0;
-   box-sizing: content-box;
-width: 30%;
-padding-left: 2%;
-height: 115px;
+  position: absolute;
+  top: 38%;
+  left: 15%;
+  background-color: #96d8e0;
+  box-sizing: content-box;
+  width: 30%;
+  padding-left: 2%;
+  height: 115px;
 }
 
 #tips {
-	    position: absolute;
-    bottom: 23%;
-    left: 15%;
-   background-color: #96d8e0;
-   box-sizing: content-box;
-width: 30%;
-padding-left: 2%;
-height:115px;
+	position: absolute;
+  bottom: 23%;
+  left: 15%;
+  background-color: #96d8e0;
+  box-sizing: content-box;
+  width: 30%;
+  padding-left: 2%;
+  height: 115px;
 
 }
 .w3-container {
-  
-margin-top: 135px;
-
-background-color: ivory;
-
+  margin-top: 135px;
+  background-color: ivory;
+  height: 60px;
+}
+.button-primary{
+    border-radius: 8px;
+    width: 60px;
+}
+.table4 td,th {
+  border: 1px solid black;
+  padding: 0.5rem;
+  text-align: center;
 }
 
+
+.table4 tr:nth-child {
+    background-color: #41544e82;
+}
+.table4 tr:first-child {
+    background-color: #7896a0;
+}
+.table4 {
+  position: absolute;
+  top: 33%;
+  left: 10%;
+  width: 80%;
+  text-align: center;
+}
+.table5{
+  top: 60%;
+  position: absolute;
+}
+.ed_hrs {
+  width: 50px;
+  text-align: center;
+  
+}
+.notice {
+  font-size: 16px;
+    color: blue;
+}
+.material-icons, .mi {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 70px;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 0.3;
+    text-transform: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
+}

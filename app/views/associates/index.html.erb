@@ -1,109 +1,136 @@
   <div class = "container2">
+    <% if flash[:notice] %>
+      <div class="notice"><%= flash[:notice] %></div>
+    <% end %>
     <p style="text-align: center; font-size: 20px;">Timesheet Extraction</p> <br>
     <head>
-		  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-			  <script type="text/javascript">
-			  <script language="javascript" type="text/javascript">
-			      var sum = 0;
-            $('tr').find('.combat').each(function () {
-              var combat = $(this).text();
-              if (!isNaN(combat) && combat.length !== 0) {
-               sum += parseFloat(combat);
-              }
-           });
+		  <script type="text/javascript">
+		    $(document).ready(function() {
+		       $("#my_form").submit(function(){
+		         if ($(".user_check").is(":checked")){
+		          $('p').before('Records imported successfully');
+		         }else{
+		           $('p').before('Please select records')
+		         }
+		       });
+          $("#check_all").change(function() {
+            if (this.checked) {
+              $(".user_check").each(function() {
+                this.checked=true;
+              });
+            } else {
+              $(".user_check").each(function() {
+                this.checked=false;
+              });
+            }
+          });
 
-         $('.rowtotal',this).html(sum);
-	  	</script>
+          $(".user_check").click(function () {
+            if ($(this).is(":checked")) {
+              var isAllChecked = 0;
+
+              $(".user_check").each(function() {
+                if (!this.checked)
+                    isAllChecked = 1;
+              });
+
+              if (isAllChecked == 0) {
+                $("#check_all").prop("checked", true);
+              }     
+            } else {
+              $("#check_all").prop("checked", false);
+              }
+            });
+         
+        });
+		  </script>
+      
 	  </head>
 	  <table>
 	    <tr>
 	      <div class ="table1">
-	      <%= form_tag search_associates_path, method: 'get', format: "csv" do |f| %>
-	        <table style = "width: 100%">
-	          <tr>
-              <td>Associate Id</td><td><%= text_field_tag :associate_id, params[:associate_id] %></td>
-              <td>Project Id</td><td><%= text_field_tag :project_id, params[:project_id] %></td>
-              <td>Payroll Center</td><td><%= text_field_tag :payroll_center, params[:payroll_center] %></td>
-              <td>Business Unit</td><td><%= text_field_tag :business_unit, params[:business_unit] %></td>
-            </tr>
-            <tr>
-              <td>Start Date</td><td><%= date_field_tag :start_date, params[:start_date]%></td>
-              <td>End date</td><td><%= date_field_tag :end_date, params[:end_date]%></td>
-            </tr>
-            <tr>
-              <td></td><td></td><td></td><td><%= submit_tag "Reset"%></td>
-              <td><%= submit_tag "Search"%></td>
-            </tr>
-          </table>
-      </tr>
-        <% end %>
+	        <%= form_tag search_associates_path, method: 'get', format: "csv" do |f| %>
+	          <table style = "width: 100%">
+	            <tr>
+                <td>Associate Id</td><td><%= text_field_tag :associate_id, params[:associate_id] %></td>
+                <td>Project Id</td><td><%= text_field_tag :project_id, params[:project_id] %></td>
+                <td>Payroll Center</td><td><%= text_field_tag :payroll_center, params[:payroll_center] %></td>
+                <td>Business Unit</td><td><%= text_field_tag :business_unit, params[:business_unit] %></td>
+              </tr>
+              <tr>
+                <td style="padding: 10px;">Start Date</td><td><%= date_field_tag :start_date, params[:start_date]%></td>
+                <td>End date</td><td><%= date_field_tag :end_date, params[:end_date]%></td>
+              </tr>
+                <td></td><td></td><td></td><td style="text-align: right;"><%= submit_tag "Reset"%></td>
+                <td style="text-align: center;"><%= submit_tag "Search"%></td>
+              </tr>
+            </table>
+          <%end%>
         </div>
-      <tr>
+      </tr>
       <% if @associates.present? %>
-        <%= form_tag export_associates_path(format: :csv), method: "get" do |f|%>
-          <table class = "table2" role="grid">
-            <tr>
-              <th>Select <input type="checkbox"></th>
-              <th>Associate Name</th>
-              <th>Associate Id</th>
-              <th>Business Unit</th>
-              <th>Project Id</th>
-              <th>Assignment Id</th>
-              <th>Work Group</th>
-              <th>Timesheet status</th>
-              <th>Mon<br><%= @date.at_beginning_of_week.strftime("%d/%m") %></th>
-              <th>Tues<br><%= (@date.at_beginning_of_week+1.day).strftime("%d/%m") %></th>
-              <th>Wed<br><%= (@date.at_beginning_of_week+2.day).strftime("%d/%m") %></th>
-              <th>Thur<br><%= (@date.at_beginning_of_week+3.day).strftime("%d/%m") %></th>
-              <th>Fri<br><%= (@date.at_beginning_of_week+4.day).strftime("%d/%m") %></th>
-              <th>Sat<br><%= (@date.at_beginning_of_week+5.day).strftime("%d/%m") %></th>
-              <th>Sun<br><%= (@date.at_beginning_of_week+6.day).strftime("%d/%m") %></th>
-              <th>Total hours</th>
-            </tr>
-          <% @associates.each do |i| %>
-            <tr>
-              <td><%= check_box_tag "user_ids[]", i.associate_id %></td>
-              <td><%= i.associate_name %></td>
-              <td><%= i.associate_id %></td>
-              <td><%= i.business_unit %></td>
-              <td><%= i.project_id%></td>
-              <td><%= i.assignment_id %></td>
-              <td><%= i.work_group %></td>
-              <td><%= i.status %></td>
-              <% total = 0 %>
-              <% h = Hour.where(associate_id: i.associate_id, date: (@date.beginning_of_week..(@date.beginning_of_week)+7 )) %>
-              <% if h.present? && h.count == 7 %>
-                <% h.each do |f| %>
-                  <% if f.hours != nil %>
-                    <td><%= f.hours %></td>
-                    <% total = total + f.hours %>
-                  <% else %>
-                    <td> 0 </td>
-                  <% end %>
+        <%= form_tag export_associates_path(format: :csv), method: "get", id: "my_form" do |f|%>
+          <tr>
+            <table class = "table2">
+              <tr>
+                <th><input type="checkbox", id = "check_all" > Select</th>
+                <th>Associate Name</th>
+                <th>Associate Id</th>
+                <th>Business Unit</th>
+                <th>Project Id</th>
+                <th>Assignment Id</th>
+                <th>Work Group</th>
+                <th>Timesheet status</th>
+                <th>Mon<br><%= @date.at_beginning_of_week.strftime("%d/%m") %></th>
+                <th>Tues<br><%= (@date.at_beginning_of_week+1.day).strftime("%d/%m") %></th>
+                <th>Wed<br><%= (@date.at_beginning_of_week+2.day).strftime("%d/%m") %></th>
+                <th>Thur<br><%= (@date.at_beginning_of_week+3.day).strftime("%d/%m") %></th>
+                <th>Fri<br><%= (@date.at_beginning_of_week+4.day).strftime("%d/%m") %></th>
+                <th>Sat<br><%= (@date.at_beginning_of_week+5.day).strftime("%d/%m") %></th>
+                <th>Sun<br><%= (@date.at_beginning_of_week+6.day).strftime("%d/%m") %></th>
+                <th>Total hours</th>
+              </tr>
+            <% @associates.each do |i| %>
+              <tr>
+                <td><%= check_box_tag "user_ids[]", i.associate_id, checked = false, class: "user_check" %></td>
+                <td><%= i.associate_name %></td>
+                <td><%= i.associate_id %></td>
+                <td><%= i.business_unit %></td>
+                <td><%= i.project_id%></td>
+                <td><%= i.assignment_id %></td>
+                <td><%= i.work_group %></td>
+                <td><%= i.status %></td>
+                <% total = 0 %>
+                <% h = Hour.where(associate_id: i.associate_id, date: (@date.beginning_of_week..(@date.beginning_of_week)+7 )) %>
+                <% if h.present? %>
+                  <% h.each do |f| %>
+                    <% if f.hours != nil %>
+                      <td><%= f.hours %></td>
+                      <% total = total + f.hours %>
+                    <% else %>
+                      <td> 0 </td>
+                    <% end %>
+                  <%end%>
+                <%else%>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
+                  <td> 0 </td>
                 <%end%>
-              <%else%>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-                  <td> 0 </td>
-              <%end%>
-              <td><%=  total %></td>
+                <td><%=  total %></td>
+              </tr>
+            <% end %>
             </tr>
-          <% end %>
-          </table>
-          <table class = "table3">
             <tr>
-              <%= submit_tag("Export") %>
+               <td id = "last"></td><td id = "last"></td><td id = "last"><td id = "last">
+               </td><td id = "last"></td><td id = "last"></td> <td id = "last"><%= submit_tag("Export to Excel") %> </td>
             </tr>
           </table>
           <% end %>
-      <% end %>
-      </tr>  
+        <% end %>
+      </tr>
     </table>
-    <% if flash[:success] %>
-      <div class=""><%= flash[:success] %></div>
-    <% end %>
 </div>

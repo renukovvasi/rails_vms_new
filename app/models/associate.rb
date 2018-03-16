@@ -3,13 +3,13 @@ class Associate < ActiveRecord::Base
   def self.to_csv(users,date)
     #binding.pry
     @date = date.beginning_of_week
-    @day1 = @date.strftime('%a/%d/%m')
-    @day2 = (@date+1.day).strftime('%a/%d/%m')
-    @day3 = (@date+2.day).strftime('%a/%d/%m')
-    @day4 = (@date+3.day).strftime('%a/%d/%m')
-    @day5 = (@date+4.day).strftime('%a/%d/%m')
-    @day6 = (@date+5.day).strftime('%a/%d/%m')
-    @day7 = (@date+6.day).strftime('%a/%d/%m')
+    @day1 = @date.strftime("%d/%m/%Y")
+    @day2 = (@date+1.day).strftime("%d/%m/%Y")
+    @day3 = (@date+2.day).strftime("%d/%m/%Y")
+    @day4 = (@date+3.day).strftime("%d/%m/%Y")
+    @day5 = (@date+4.day).strftime("%d/%m/%Y")
+    @day6 = (@date+5.day).strftime("%d/%m/%Y")
+    @day7 = (@date+6.day).strftime("%d/%m/%Y")
     column_names =  ["associate_name", "associate_id", "business_unit","project_id","assignment_id","work_group"]
     additional_columns = ["#@day1", "#@day2", "#@day3", "#@day4","#@day5", "#@day6", "#@day7", "Total","Import Status"]
     column_names += additional_columns
@@ -43,7 +43,6 @@ class Associate < ActiveRecord::Base
         end
         values += add_values
         values << total
-        #binding.pry
         csv << values
       end
     end
